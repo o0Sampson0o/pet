@@ -1,0 +1,54 @@
+name: Build DesktopPet
+
+on: [push]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Ninja
+        run: choco install ninja
+
+      - name: Install LLVM (Clang)
+        run: choco install llvm
+
+      - name: Install SFML via vcpkg
+        run: vcpkg install sfml:x64-windows
+
+      - name: Configure
+        run: >
+          cmake -B build -G "Ninja"
+          -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe"
+          -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang++.exe"
+          -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: DesktopPet-Windows
+          path: build/
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SFML
+        run: brew install sfml
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_CXX_COMPILER=clang++
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: DesktopPet-macOS
+          path: build/
