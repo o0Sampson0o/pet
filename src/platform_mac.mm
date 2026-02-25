@@ -5,7 +5,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 void setupMacWindow(void* windowHandle) {
-    NSWindow* nsWindow = (NSWindow*)windowHandle;
+    NSWindow* nsWindow = (__brigde NSWindow*)windowHandle;
     [nsWindow setTitleVisibility : NSWindowTitleHidden] ;
     [nsWindow setTitlebarAppearsTransparent : YES] ;
     [nsWindow setOpaque : NO] ;

@@ -136,7 +136,7 @@ int main()
 #endif
 
 #ifdef __APPLE__
-    setupMacWindow(window.getSystemHandle());
+    setupMacWindow(window.getNativeHandle());
 #endif
 
     // ── Texture & Sprite ──────────────────────────────────────────────────────
