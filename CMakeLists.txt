@@ -29,5 +29,5 @@ endif()
 add_custom_command(TARGET DesktopPet POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/res/pet_image.png
-        $<TARGET_FILE_DIR:DesktopPet>/pet_image.png
+        $<TARGET_FILE_DIR:DesktopPet>/res/pet_image.png
 )
