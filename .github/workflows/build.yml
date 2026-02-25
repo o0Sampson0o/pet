@@ -15,7 +15,7 @@ jobs:
         run: choco install llvm
 
       - name: Install SFML via vcpkg
-        run: vcpkg install sfml:x64-windows
+        run: vcpkg install sfml:x64-windows-static
 
       - name: Configure
         run: >
@@ -23,6 +23,7 @@ jobs:
           -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe"
           -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang++.exe"
           -DCMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
+           -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         run: cmake --build build --config Release

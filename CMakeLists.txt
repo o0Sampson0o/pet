@@ -2,10 +2,11 @@ cmake_minimum_required(VERSION 3.20)
 project(DesktopPet)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS_RELEASE "/MT")
-set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
+
+
 
 find_package(SFML 3 REQUIRED COMPONENTS Graphics Window System)
+add_definitions(-DSFML_STATIC)
 
 # Sources — add platform_mac.mm only on Apple
 set(SOURCES src/main.cpp)
