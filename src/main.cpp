@@ -9,9 +9,9 @@
 #include <Windows.h>
 #endif
 
+// ADD this instead at the top:
 #ifdef __APPLE__
-#include <Cocoa/Cocoa.h>
-#include <QuartzCore/QuartzCore.h>
+#include "platform_mac.h"
 #endif
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -136,13 +136,7 @@ int main()
 #endif
 
 #ifdef __APPLE__
-    NSWindow* nsWindow = (NSWindow*)window.getSystemHandle();
-    [nsWindow setTitleVisibility : NSWindowTitleHidden] ;
-    [nsWindow setTitlebarAppearsTransparent : YES] ;
-    [nsWindow setOpaque : NO] ;
-    [nsWindow setBackgroundColor : [NSColor clearColor] ] ;
-    [nsWindow setIgnoresMouseEvents : YES] ;
-    [nsWindow setLevel : NSFloatingWindowLevel] ;
+    setupMacWindow(window.getSystemHandle());
 #endif
 
     // ── Texture & Sprite ──────────────────────────────────────────────────────

@@ -3,10 +3,15 @@ project(DesktopPet)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Find SFML — looks for it on the system
 find_package(SFML 3 REQUIRED COMPONENTS Graphics Window System)
 
-add_executable(DesktopPet src/main.cpp)
+# Sources — add platform_mac.mm only on Apple
+set(SOURCES src/main.cpp)
+if(APPLE)
+    list(APPEND SOURCES src/platform_mac.mm)
+endif()
+
+add_executable(DesktopPet ${SOURCES})
 
 target_link_libraries(DesktopPet PRIVATE
     SFML::Graphics
@@ -14,7 +19,6 @@ target_link_libraries(DesktopPet PRIVATE
     SFML::System
 )
 
-# macOS specific frameworks
 if(APPLE)
     target_link_libraries(DesktopPet PRIVATE
         "-framework Cocoa"
@@ -22,9 +26,8 @@ if(APPLE)
     )
 endif()
 
-# Copy pet_image.png next to the executable after build
 add_custom_command(TARGET DesktopPet POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/res/pet_image.png
-        $<TARGET_FILE_DIR:DesktopPet>/res/pet_image.png
+        $<TARGET_FILE_DIR:DesktopPet>/pet_image.png
 )
