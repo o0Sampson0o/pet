@@ -1,14 +1,15 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 4.2)
 project(DesktopPet)
 
 set(CMAKE_CXX_STANDARD 17)
 
-
+# Static link the MSVC runtime on Windows
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
 find_package(SFML 3 REQUIRED COMPONENTS Graphics Window System)
-add_definitions(-DSFML_STATIC)
 
-# Sources — add platform_mac.mm only on Apple
 set(SOURCES src/main.cpp)
 if(APPLE)
     list(APPEND SOURCES src/platform_mac.mm)
@@ -29,7 +30,10 @@ if(APPLE)
     )
 endif()
 
+# Copy res/ folder next to the exe
 add_custom_command(TARGET DesktopPet POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+        $<TARGET_FILE_DIR:DesktopPet>/res
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_SOURCE_DIR}/res/pet_image.png
         $<TARGET_FILE_DIR:DesktopPet>/res/pet_image.png
