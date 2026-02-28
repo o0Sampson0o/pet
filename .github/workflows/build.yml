@@ -3,10 +3,14 @@ name: Build DesktopPet
 on: [push]
 
 jobs:
+  # ── Windows ────────────────────────────────────────────────────────────────
   build-windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install NSIS
+        run: choco install nsis
 
       - name: Install SFML via vcpkg (static)
         run: vcpkg install sfml:x64-windows-static
@@ -21,12 +25,17 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
 
-      - name: Upload
+      - name: Package (create installer)
+        working-directory: build
+        run: cpack -C Release
+
+      - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
-          name: DesktopPet-Windows
-          path: build/Release/
+          name: DesktopPet-Windows-Installer
+          path: build/DesktopPet-1.0-win64.exe
 
+  # ── macOS ──────────────────────────────────────────────────────────────────
   build-macos:
     runs-on: macos-latest
     steps:
@@ -44,11 +53,15 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
 
-      - name: Sign
+      - name: Ad-hoc sign
         run: codesign --force --deep --sign - build/DesktopPet
 
-      - name: Upload
+      - name: Package (create dmg)
+        working-directory: build
+        run: cpack -C Release
+
+      - name: Upload dmg
         uses: actions/upload-artifact@v4
         with:
           name: DesktopPet-macOS
-          path: build/
+          path: build/DesktopPet-1.0-macos.dmg
