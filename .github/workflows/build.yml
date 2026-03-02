@@ -44,6 +44,10 @@ jobs:
       - name: Install SFML
         run: brew install sfml
 
+      - name: Convert iconset to .icns
+        # iconutil is built into macOS — converts the iconset folder to .icns
+        run: iconutil -c icns res/DesktopPet.iconset -o res/icon.icns
+
       - name: Configure
         run: >
           cmake -B build
@@ -54,7 +58,7 @@ jobs:
         run: cmake --build build --config Release
 
       - name: Ad-hoc sign
-        run: codesign --force --deep --sign - build/DesktopPet
+        run: codesign --force --deep --sign - build/DesktopPet.app
 
       - name: Package (create dmg)
         working-directory: build
