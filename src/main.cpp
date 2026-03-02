@@ -121,12 +121,6 @@ struct StrokeDetector {
 // ─────────────────────────────────────────────────────────────────────────────
 int main()
 {
-#ifdef NDEBUG
-    std::cout << "Release Build\n";
-#else
-    std::cout << "Debug Build\n";
-#endif
-
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
     // ── Window ────────────────────────────────────────────────────────────────

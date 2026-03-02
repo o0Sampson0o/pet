@@ -6,3 +6,4 @@ x64
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+.vscode/c_cpp_properties.json
