@@ -3,12 +3,28 @@ project(DesktopPet)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# Allow FetchContent dependencies that use old CMake minimum versions
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+
+include(FetchContent)
 # Statically link MSVC runtime on Windows
 if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
-find_package(SFML 3 REQUIRED COMPONENTS Graphics Window System Main)
+FetchContent_Declare(
+    SFML
+    GIT_REPOSITORY https://github.com/SFML/SFML.git
+    GIT_TAG        3.0.0
+    GIT_SHALLOW    TRUE   # only downloads the tagged commit, not full history
+)
+
+# Tell SFML to build as static libraries
+set(SFML_BUILD_AUDIO    OFF)  # we don't use audio, skip it
+set(SFML_BUILD_NETWORK  OFF)  # we don't use network, skip it
+set(BUILD_SHARED_LIBS   OFF)  # static linking
+
+FetchContent_MakeAvailable(SFML)
 
 # Sources
 set(SOURCES src/main.cpp)

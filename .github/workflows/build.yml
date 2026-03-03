@@ -12,20 +12,15 @@ jobs:
       - name: Install NSIS
         run: choco install nsis
 
-      - name: Install SFML via vcpkg (static)
-        run: vcpkg install sfml:x64-windows-static
-
       - name: Configure
         run: >
           cmake -B build -G "Visual Studio 17 2022" -A x64
-          -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
-          -DVCPKG_TARGET_TRIPLET=x64-windows-static
           -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         run: cmake --build build --config Release
 
-      - name: Package (create installer)
+      - name: Package
         working-directory: build
         run: cpack -C Release
 
@@ -41,11 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install SFML
-        run: brew install sfml
-
       - name: Convert iconset to .icns
-        # iconutil is built into macOS — converts the iconset folder to .icns
         run: iconutil -c icns res/DesktopPet.iconset -o res/icon.icns
 
       - name: Configure
@@ -60,7 +51,7 @@ jobs:
       - name: Ad-hoc sign
         run: codesign --force --deep --sign - build/DesktopPet.app
 
-      - name: Package (create dmg)
+      - name: Package
         working-directory: build
         run: cpack -C Release
 
