@@ -3,75 +3,59 @@ project(DesktopPet)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Allow FetchContent dependencies that use old CMake minimum versions
-set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
-
-include(FetchContent)
-# Statically link MSVC runtime on Windows
+# ── Windows: MSVC static runtime, no SFML needed ─────────────────────────────
 if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
-FetchContent_Declare(
-    SFML
-    GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG        3.0.0
-    GIT_SHALLOW    TRUE   # only downloads the tagged commit, not full history
-)
-
-# Tell SFML to build as static libraries
-set(SFML_BUILD_AUDIO    OFF)  # we don't use audio, skip it
-set(SFML_BUILD_NETWORK  OFF)  # we don't use network, skip it
-set(BUILD_SHARED_LIBS   OFF)  # static linking
-
-FetchContent_MakeAvailable(SFML)
-
-# Sources
-set(SOURCES src/main.cpp)
+# ── macOS: fetch SFML via FetchContent ────────────────────────────────────────
 if(APPLE)
-    list(APPEND SOURCES src/platform_mac.mm)
+    include(FetchContent)
+    FetchContent_Declare(
+        SFML
+        GIT_REPOSITORY https://github.com/SFML/SFML.git
+        GIT_TAG        3.0.0
+        GIT_SHALLOW    TRUE
+    )
+    set(SFML_BUILD_AUDIO   OFF)
+    set(SFML_BUILD_NETWORK OFF)
+    set(BUILD_SHARED_LIBS  OFF)
+    FetchContent_MakeAvailable(SFML)
 endif()
 
-# No console window on Windows, proper .app bundle on macOS
+# ── Sources ───────────────────────────────────────────────────────────────────
 if(WIN32)
-    add_executable(DesktopPet WIN32 ${SOURCES})
-elseif(APPLE)
-    add_executable(DesktopPet MACOSX_BUNDLE ${SOURCES})
-else()
-    add_executable(DesktopPet ${SOURCES})
-endif()
-
-target_link_libraries(DesktopPet PRIVATE
-    SFML::Graphics
-    SFML::Window
-    SFML::System
-    $<$<BOOL:${WIN32}>:SFML::Main>
-)
-
-if(APPLE)
+    # Windows: Win32 + Direct2D + DirectComposition, no SFML
+    add_executable(DesktopPet WIN32
+        src/platform_win.cpp
+    )
     target_link_libraries(DesktopPet PRIVATE
+        d2d1
+        d3d11
+        dxgi
+        dcomp
+        windowscodecs
+        dwmapi
+    )
+elseif(APPLE)
+    # macOS: SFML-based, Objective-C++
+    add_executable(DesktopPet MACOSX_BUNDLE
+        src/platform_mac.mm
+    )
+    target_link_libraries(DesktopPet PRIVATE
+        SFML::Graphics
+        SFML::Window
+        SFML::System
         "-framework Cocoa"
         "-framework QuartzCore"
     )
-endif()
 
-# ── Icons ──────────────────────────────────────────────────────────────────
-if(WIN32)
-    # Embed icon into the exe via a Windows resource file
-    # CMake auto-compiles .rc files with MSVC
-    set(ICON_RC "${CMAKE_CURRENT_BINARY_DIR}/icon.rc")
-    file(WRITE ${ICON_RC} "IDI_ICON1 ICON \"${CMAKE_SOURCE_DIR}/res/icon.ico\"\n")
-    target_sources(DesktopPet PRIVATE ${ICON_RC})
-endif()
-
-if(APPLE)
-    # .icns goes inside the .app bundle under Contents/Resources/
+    # macOS icon
     set(APP_ICON "${CMAKE_SOURCE_DIR}/res/icon.icns")
     set_source_files_properties(${APP_ICON} PROPERTIES
         MACOSX_PACKAGE_LOCATION "Resources"
     )
     target_sources(DesktopPet PRIVATE ${APP_ICON})
-
     set_target_properties(DesktopPet PROPERTIES
         MACOSX_BUNDLE_BUNDLE_NAME       "DesktopPet"
         MACOSX_BUNDLE_BUNDLE_VERSION    "1.0.0"
@@ -80,16 +64,17 @@ if(APPLE)
     )
 endif()
 
-# ── Install rules ──────────────────────────────────────────────────────────
-install(TARGETS DesktopPet
-    RUNTIME DESTINATION .
-    BUNDLE  DESTINATION .
-)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/res
-    DESTINATION .
-)
+# app.h is shared by both platforms
+target_include_directories(DesktopPet PRIVATE src)
 
-# Copy res/ next to exe for local development builds
+# ── Windows icon (embedded into exe via .rc file) ─────────────────────────────
+if(WIN32)
+    set(ICON_RC "${CMAKE_CURRENT_BINARY_DIR}/icon.rc")
+    file(WRITE ${ICON_RC} "IDI_ICON1 ICON \"${CMAKE_SOURCE_DIR}/res/icon.ico\"\n")
+    target_sources(DesktopPet PRIVATE ${ICON_RC})
+endif()
+
+# ── Copy res/ next to exe for local dev builds ────────────────────────────────
 add_custom_command(TARGET DesktopPet POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory
         $<TARGET_FILE_DIR:DesktopPet>/res
@@ -98,7 +83,16 @@ add_custom_command(TARGET DesktopPet POST_BUILD
         $<TARGET_FILE_DIR:DesktopPet>/res/pet_image.png
 )
 
-# ── CPack / installer ──────────────────────────────────────────────────────
+# ── Install rules ─────────────────────────────────────────────────────────────
+install(TARGETS DesktopPet
+    RUNTIME DESTINATION .
+    BUNDLE  DESTINATION .
+)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/res
+    DESTINATION .
+)
+
+# ── CPack / installer ─────────────────────────────────────────────────────────
 set(CPACK_PACKAGE_NAME                "DesktopPet")
 set(CPACK_PACKAGE_VENDOR              "Lagrange-040506")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A cute desktop pet that lives on your screen")

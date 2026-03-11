@@ -20,7 +20,7 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
 
-      - name: Package
+      - name: Package (create installer)
         working-directory: build
         run: cpack -C Release
 
@@ -31,6 +31,7 @@ jobs:
           path: build/DesktopPet-1.0-win64.exe
 
   # ── macOS ──────────────────────────────────────────────────────────────────
+  # SFML is fetched automatically by CMake FetchContent — no brew install needed
   build-macos:
     runs-on: macos-latest
     steps:
@@ -51,7 +52,7 @@ jobs:
       - name: Ad-hoc sign
         run: codesign --force --deep --sign - build/DesktopPet.app
 
-      - name: Package
+      - name: Package (create dmg)
         working-directory: build
         run: cpack -C Release
 
