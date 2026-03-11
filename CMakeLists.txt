@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
-project(DesktopPet)
+# To this:
+if(APPLE)
+    project(DesktopPet LANGUAGES CXX OBJCXX)
+else()
+    project(DesktopPet LANGUAGES CXX)
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 
