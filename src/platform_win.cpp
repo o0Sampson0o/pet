@@ -276,12 +276,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
     // WS_EX_TOPMOST             — always on top
     // WS_EX_TRANSPARENT         — click-through
     HWND hwnd = CreateWindowExW(
-        WS_EX_NOREDIRECTIONBITMAP | WS_EX_TOPMOST | WS_EX_TRANSPARENT,
+        WS_EX_NOREDIRECTIONBITMAP | WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT,
         L"DesktopPetClass",
         L"DesktopPet",
         WS_POPUP,
         0, 0, screenW, screenH,
         nullptr, nullptr, hInstance, nullptr);
+
+    // alpha=255 means fully opaque layered window,
+    // but DirectComposition still handles the actual per-pixel transparency
+    SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
 
     ShowWindow(hwnd, SW_SHOW);
     UpdateWindow(hwnd);

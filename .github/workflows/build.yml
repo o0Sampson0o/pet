@@ -45,6 +45,7 @@ jobs:
           cmake -B build
           -DCMAKE_CXX_COMPILER=clang++
           -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build
         run: cmake --build build --config Release
